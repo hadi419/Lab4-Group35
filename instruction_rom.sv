@@ -1,6 +1,6 @@
 module instruction_rom #(
 
-    parameter INSTRUCTION_ADDRESS_WIDTH=5,
+    parameter INSTRUCTION_ADDRESS_WIDTH=8,
               DATA_ADDRESS_WIDTH=5,
               DATA_WIDTH=8
 )(
