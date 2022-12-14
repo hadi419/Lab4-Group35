@@ -31,5 +31,6 @@ always_ff @ (posedge clk)
     end
 
 assign RdD=InstrD_Out[11:7];
+ 
 
 endmodule
