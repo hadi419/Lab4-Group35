@@ -8,7 +8,8 @@
 int main(int argc, char **argv, char **env) {
   int simcyc;     // simulation clock count
   int tick;       // each clk cycle has two ticks for two edges
-  
+  int lights = 0; // state to toggle LED lights
+
   Verilated::commandArgs(argc, argv);
   // init top verilog instance
   VRISC_V_top * top = new VRISC_V_top;
@@ -20,12 +21,13 @@ int main(int argc, char **argv, char **env) {
  
   // init Vbuddy
   if (vbdOpen()!=1) return(-1);
-  vbdHeader("L3T3:timed_f1_fsm");
+  vbdHeader("L3T2:RISC_V_top");
   vbdSetMode(1);        // Flag mode set to one-shot
 
   // initialize simulation inputs
   top->clk = 1;
   top->rst = 0;
+
   
   // run simulation for MAX_SIM_CYC clock cycles
   for (simcyc=0; simcyc<MAX_SIM_CYC; simcyc++) {
@@ -37,9 +39,12 @@ int main(int argc, char **argv, char **env) {
     }
 
     // Display toggle neopixel
-    vbdBar(top->a0);
-    // set up input signals of testbench
- 
+    if(top->t3)
+    {
+        vbdPlot(int(top->a0), 0, 255);
+    }
+    
+
     if (Verilated::gotFinish())  exit(0);
   }
 
