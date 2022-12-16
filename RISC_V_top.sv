@@ -4,14 +4,11 @@ module RISC_V_top
     input logic rst,
     output logic[31:0] a0,
     output logic[31:0] a1,
-    output logic[31:0] t1,
-    output logic[31:0] t2,
-    output logic[31:0] result,
-    output logic[31:0] pc
+    output logic[31:0] t3
 
 );
 
-logic [31:0] instruction_address;
+logic [7:0] instruction_address;
 logic [31:0] instr;
 logic [4:0]  rs1_addr;
 logic [4:0]  rs2_addr;
@@ -35,18 +32,18 @@ logic[31:0] ALU_operand2;
 logic[31:0] register_operand2;
 
 
-
-assign result=ALU_output;
-assign pc=instruction_address;
-
 logic [31:0] data_output;
 logic mem_write;
 logic mux3_sel;
 logic [31:0] mem_out;
 logic [31:0] reg_write_data;
 
-logic jump_mux_sel;
+logic[1:0] jump_mux_sel;
 logic [31:0] inc_PC;
+
+logic [31:0]  memory_output;
+logic sign_extend_sel;
+logic[31:0] upper_immediate;
 
 
 PC_reg ProgramCounter (
@@ -83,7 +80,9 @@ control_unit control(
     .PCsrc(PC_src),
     .Memwrite(mem_write),
     .MUX3Sel(mux3_sel),
-    .jump_mux_sel(jump_mux_sel)
+    .jump_mux_sel(jump_mux_sel),
+    .sign_extend_sel(sign_extend_sel),
+    .upper_immediate(upper_immediate)
 
 );
 
@@ -107,8 +106,7 @@ register Reg_File(
     .clk(clk),
     .a0(a0),
     .a1(a1),
-    .t1(t1),
-    .t2(t2)
+    .t3(t3)
 
 );
 
@@ -144,7 +142,7 @@ ram data_ram(
 mux3 result_mux(
 
     .alu_out(ALU_output),
-    .mem_out(mem_out),
+    .mem_out(memory_output),
     .mux3sel(mux3_sel),
     .reg_write_data(data_output)
 
@@ -152,13 +150,23 @@ mux3 result_mux(
 
 jump_mux jump_multiplexer(
 
+    .jump_mux_sel(jump_mux_sel),
     .inc_PC(inc_PC),
     .data_output(data_output),
     .reg_write_data(reg_write_data),
-    .jump_mux_sel(jump_mux_sel)
+    .upper_immediate(upper_immediate)
+
 
 );
 
+sign_extend_memory sig_ext_mem(
+
+    .sign_extend_sel(sign_extend_sel),
+    .memory_data(mem_out),
+    .memory_output(memory_output)
+);
 
 endmodule
+
+
 

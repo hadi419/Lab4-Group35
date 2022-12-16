@@ -10,7 +10,7 @@ module sign_extend(
 
         begin
 
-            if((Immsrc==2'b11) | (Immsrc==00))
+            if(Immsrc==2'b00 | Immsrc==2'b11 )
 
                 imm_op={{20{instr[31]}}, instr[31:20]};
 
@@ -21,7 +21,7 @@ module sign_extend(
 
             else
 
-                imm_op={{20{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8]};
+                imm_op={{20{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8]} ;
 
         end
 

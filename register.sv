@@ -3,8 +3,9 @@ module register #(
               DATA_WIDTH = 32,
               A0_ADDRESS=5'b01010,
               A1_ADDRESS=5'b01011,
-              T1_ADDRESS=5'b00110,
-              T2_ADDRESS=5'b00111
+
+              T3_ADDRESS=5'b11100
+    
 
 )(
   
@@ -18,8 +19,7 @@ module register #(
     output logic [DATA_WIDTH-1:0] RD2,
     output logic [DATA_WIDTH-1:0] a0,
     output logic [DATA_WIDTH-1:0] a1,
-    output logic [DATA_WIDTH-1:0] t1,
-    output logic [DATA_WIDTH-1:0] t2,
+    output logic [DATA_WIDTH-1:0] t3,
     input logic                      clk
 
 ); 
@@ -30,8 +30,8 @@ logic [DATA_WIDTH-1:0] register_file_array[2**ADDRESS_WIDTH-1:0];
     assign    RD2 = register_file_array[AD2];
     assign    a0 = register_file_array[A0_ADDRESS];
     assign    a1 = register_file_array[A1_ADDRESS];
-    assign    t1 = register_file_array[T1_ADDRESS];
-    assign    t2 = register_file_array[T2_ADDRESS];
+    assign    t3 = register_file_array[T3_ADDRESS];
+
 
 always_ff @ (posedge clk)
     begin
