@@ -19,13 +19,17 @@ module alu #(
     logic [DATA_WIDTH-1:0] bitwise_or;
     logic [DATA_WIDTH-1:0] slt;
     logic [DATA_WIDTH-1:0] shift_left;
+    logic [DATA_WIDTH-1:0] bitwise_xor;
+    logic [DATA_WIDTH-1:0] shift_right;
 
     assign add=ALUop1+ALUop2;
     assign sub=ALUop1-ALUop2;
     assign bitwise_or=ALUop1 | ALUop2;
     assign bitwise_and=ALUop2 & ALUop1;
-    assign slt =ALUop2 < ALUop1;
+    assign slt ={{31{1'b0}} , ALUop2 < ALUop1};
     assign shift_left = ALUop1 << ALUop2;
+    assign bitwise_xor =ALUop2 ^ ALUop1;
+    assign shift_right = ALUop1 >> ALUop2;
 
 
 
@@ -46,10 +50,7 @@ module alu #(
                 begin
 
                     ALUout=sub;
-                    if(ALUout=={32{1'b0}})
-                        EQ=1;
-                    else
-                        EQ=0;
+
 
                 end
 
@@ -69,11 +70,20 @@ module alu #(
  
                 end
 
-            else if(ALUctrl==3'b101)
+            else if(ALUctrl==3'b100)
 
                 begin
 
                     ALUout=slt;
+     
+
+                end
+
+            else if(ALUctrl==3'b101)
+
+                begin
+
+                    ALUout=bitwise_xor;
      
 
                 end
@@ -87,8 +97,39 @@ module alu #(
 
                 end
 
+            else if(ALUctrl==3'b111)
+
+                begin
+
+                    ALUout=shift_right;
+     
+
+                end
+
+
+            else
+                    ALUout=add;
+
+
+            if(ALUout=={32{1'b0}})
+                EQ=1;
+            else
+                EQ=0;
+            
+
+
+        
+
+
         end
 
 
 endmodule
+
+
+
+
+
+
+
 

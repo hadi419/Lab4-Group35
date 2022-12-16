@@ -9,32 +9,35 @@ module control_unit
      output logic[1:0] PCsrc,
      output logic MUX3Sel,
      output logic Memwrite,
-     output logic jump_mux_sel
+     output logic [1:0] jump_mux_sel,
+     output logic sign_extend_sel,
+     output logic [31:0] upper_immediate
+
 
      
     );
 
-    wire[2:0] opcode;
+    wire[6:0] opcode;
     wire[2:0] funct3;
     wire[6:0] funct7;
-    wire is_jump;
-
+   
     logic[1:0] ALUop;
+
+    assign upper_immediate={{12{1'b0}} , instr[31:12]};
 
     
 
     assign funct3=instr[14:12];
     assign funct7=instr[31:25];
-    assign is_jump=instr[2];
 
-    assign opcode = instr[6:4];
+    assign opcode = instr[6:0];
 
    
      always_comb
         begin
 
 
-            if(opcode==3'b011)
+            if(opcode==7'd51)
 
                 begin
 
@@ -45,12 +48,13 @@ module control_unit
                     MUX3Sel=0;
                     Immsrc=2'b00;
                     Memwrite=0;
-                    jump_mux_sel=0;
+                    jump_mux_sel=2'b00;
+                    sign_extend_sel=0;
 
                 end
 
 
-            else if(opcode==3'b000)
+            else if(opcode==7'd3)
 
                 begin
 
@@ -58,30 +62,20 @@ module control_unit
                     Regwrite=1;
                     ALUop=2'b00;
                     MUX3Sel=1;
-                    Immsrc=2'b00;
+                    Immsrc=2'b11;
                     Memwrite=0;
                     PCsrc=2'b00;
-                    jump_mux_sel=0;
+                    jump_mux_sel=2'b00;
+                    if(funct3==3'b000)
+                        sign_extend_sel=1;
+                    else
+                        sign_extend_sel=0;
+
 
                 end
 
 
-            else if(opcode==3'b010)
-
-                begin
-
-                    ALUsrc=1;
-                    Regwrite=0;
-                    ALUop=2'b00;
-                    PCsrc=2'b00;
-                    MUX3Sel=1;
-                    Immsrc=2'b01;
-                    Memwrite=1;
-                    jump_mux_sel=0;
-
-                end
-
-            else if(opcode==3'b001)
+            else if(opcode==7'd19)
 
                 begin
 
@@ -90,16 +84,32 @@ module control_unit
                     ALUop=2'b10;
                     PCsrc=2'b00;
                     MUX3Sel=0;
-                    Immsrc=2'b11;
+                    Immsrc=2'b00;
                     Memwrite=0;
-                    jump_mux_sel=0;
+                    jump_mux_sel=2'b00;
+                    sign_extend_sel=0;
 
                 end
 
-            else
+            else if(opcode==7'd35)
 
-                if(is_jump==1'b1) 
+                begin
 
+                    ALUsrc=1;
+                    Regwrite=0;
+                    ALUop=2'b00;
+                    PCsrc=2'b00;
+                    MUX3Sel=0;
+                    Immsrc=2'b01;
+                    Memwrite=1;
+                    jump_mux_sel=2'b00;
+                    sign_extend_sel=0;
+
+                end
+
+            else if(opcode==7'd103)
+
+              
                     begin
 
                         ALUsrc=1;
@@ -109,9 +119,10 @@ module control_unit
                         Immsrc=2'b00;
 
                         PCsrc=2'b10;
-                        jump_mux_sel=1;
+                        jump_mux_sel=2'b01;
 
                         Memwrite=0;
+                        sign_extend_sel=0;
 
 
 
@@ -119,7 +130,7 @@ module control_unit
             
 
 
-                else
+                else if(opcode==7'd99)
 
                     begin
 
@@ -135,9 +146,30 @@ module control_unit
                             PCsrc=2'b01;
 
                         Memwrite=0;
-                        jump_mux_sel=0;
+                        jump_mux_sel=2'b00;
+                        sign_extend_sel=0;
 
                     end
+
+                else
+
+                    begin
+
+                        ALUsrc=0;
+                        Regwrite=1;
+                        ALUop=2'b00;
+                        MUX3Sel=0;
+                        Immsrc=2'b00;
+
+                        
+                        PCsrc=2'b00;
+                      
+                        Memwrite=0;
+                        jump_mux_sel=2'b10;
+                        sign_extend_sel=0;
+
+                    end
+
 
 
                 if(ALUop==2'b00)
@@ -148,36 +180,75 @@ module control_unit
 
                 else if(ALUop==2'b10)
 
-                    if (funct3==3'b010)
+                    if (funct3==3'b111)
 
-                        ALUctrl=3'b101;
+                        ALUctrl=3'b010;
+
+
+
+
 
                     else if (funct3==3'b110)
 
                         ALUctrl=3'b011;
 
+
+
+
+
+                    else if (funct3==3'b010)
+
+                        ALUctrl=3'b100;
+
+
+
+
+
+                    else if (funct3==3'b100)
+
+                        ALUctrl=3'b101;
+
+
+
+
+
                     else if (funct3==3'b001)
 
                         ALUctrl=3'b110;
 
-                    else if (funct3==3'b111)
 
-                        ALUctrl=3'b010;
+
+
+
+                    else if (funct3==3'b101)
+
+                        ALUctrl=3'b111;
+
+
 
 
                     else if (funct3==3'b000)
 
                         if(opcode[1]==1'b0)
-                            ALUctrl=3'b000;
+
+                            if(funct7[5])
+                                ALUctrl=3'b001;
+                            else
+                                ALUctrl=3'b000;
 
                         else
 
-                            if(funct7[5])
-                                ALUctrl=3'b000;
-                            else
-                                ALUctrl=3'b001;
+                            ALUctrl=3'b000;
 
-                        
+                    
+                    else
+
+                        ALUctrl=3'b000;
+
+                else
+
+                    ALUctrl=3'b000;
+
 
                 
    
