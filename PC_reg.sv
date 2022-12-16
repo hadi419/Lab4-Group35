@@ -18,6 +18,9 @@ logic [WIDTH-1:0]    next_PC;
 
 assign branch_PC = PC+(Immop*4);
 assign inc_PC = PC + 32'd4;
+
+
+
 assign jump_PC = jump_address*4;
 
 assign inc=inc_PC >> 2;
@@ -31,6 +34,10 @@ always_comb
     
     else if(PCsrc==2'b10)
         next_PC=jump_PC;
+
+    else
+        next_PC=PC;
+
     
 
 always_ff @ (posedge clk, posedge rst)
@@ -40,3 +47,4 @@ always_ff @ (posedge clk, posedge rst)
     PC_reg_val <= next_PC;
 
 endmodule
+

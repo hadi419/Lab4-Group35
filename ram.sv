@@ -1,6 +1,6 @@
 module ram #(
 
-    parameter ADDRESS_WIDTH=8,
+    parameter ADDRESS_WIDTH=18,
     parameter DATA_WIDTH=8
 )(
 
@@ -12,12 +12,12 @@ module ram #(
 
 );
 
-logic [DATA_WIDTH-1:0] ram_array [2**ADDRESS_WIDTH-1:0];
+logic [DATA_WIDTH-1:0] ram_array [(2**ADDRESS_WIDTH)-1:0];
 
 initial begin
 
         $display("Loading ram.");
-        $readmemh("sinerom.mem", ram_array);
+        $readmemh("data.mem", ram_array);
 
 end;
 
